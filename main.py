@@ -10,9 +10,9 @@ from power import get_key_and_pem, get_equal
 from products import active
 
 if __name__ == '__main__':
-    get_key_and_pem()
-    get_equal()
     try:
+        get_key_and_pem()
+        get_equal()    # update main
         asyncio.run(active("Water", "IKUN"))
         # asyncio.run(active("Water", "IKUN", update=True))  # updates product codes which may take a while
         # asyncio.run(active("Water", "IKUN", False, "Rainbow Brackets"))
