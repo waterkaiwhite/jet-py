@@ -45,7 +45,7 @@ async def get_all_plugin_code():
         get_plugin_codes = await asyncio.gather(*tasks)
         get_plugin_codes = [code for code in get_plugin_codes if code is not None]
 
-    async with aiofiles.open("plugins_bak.json", "w") as f:
+    async with aiofiles.open("../plugins_bak.json", "w") as f:
         await f.write(json.dumps(get_plugin_codes))
 
 
@@ -53,7 +53,7 @@ async def plugins_code_list(update: bool = False):
     # update plugins_bak.json
     if update:
         await get_all_plugin_code()
-    async with aiofiles.open("plugins_bak.json", "r") as f1:
+    async with aiofiles.open("../plugins_bak.json", "r") as f1:
         content = await f1.read()
     return json.loads(content)
 
@@ -67,7 +67,7 @@ async def get_software():
 
 
 async def software_code_list(update: bool = False):
-    async with aiofiles.open("software_bak.json", "r") as f1:
+    async with aiofiles.open("../software_bak.json", "r") as f1:
         content = await f1.read()
         software_code = json.loads(content)
     # update = True
@@ -76,7 +76,7 @@ async def software_code_list(update: bool = False):
         for s in software:
             if s["code"] not in software_code:
                 software_code.append(s["code"])
-        async with aiofiles.open("software_bak.json", "w") as f2:
+        async with aiofiles.open("../software_bak.json", "w") as f2:
             await f2.write(json.dumps(software_code))
     return software_code
 
