@@ -14,36 +14,36 @@ from httpx import HTTPError
 from generation import generate_license
 
 
+async def send_request(url: str):
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url)
+        if response.status_code != 200:
+            raise HTTPError(f"Request failed with status code {response.status_code}")
+        return response.json()
+
+
 async def get_plugin_id(plugin_name):
     if not plugin_name:
         return None
-    async with httpx.AsyncClient() as client:
-        res = await client.get(f"https://plugins.jetbrains.com/api/searchPlugins?max=10&offset=0&search={plugin_name}")
-        if res.status_code != 200:
-            raise "Network Error"
-        return res.json()["plugins"][0]["id"]
+    response = await send_request(
+        f"https://plugins.jetbrains.com/api/searchPlugins?max=10&offset=0&search={plugin_name}")
+    return response["plugins"][0]["id"]
 
 
 async def get_plugin_code(plugin_id):
     if not plugin_id:
         return None
-    async with httpx.AsyncClient() as client:
-        res = await client.get(f"https://plugins.jetbrains.com/api/plugins/{plugin_id}")
-        if res.status_code != 200:
-            raise HTTPError("Network Error")
-        purchase = res.json().get("purchaseInfo")
-        return purchase["productCode"]
+    response = await send_request(f"https://plugins.jetbrains.com/api/plugins/{plugin_id}")
+    purchase = response.get("purchaseInfo")
+    return purchase["productCode"]
 
 
 async def get_all_plugin_code():
-    async with httpx.AsyncClient() as client:
-        res = await client.get("https://plugins.jetbrains.com/api/searchPlugins?max=10000&offset=0")
-        if res.status_code != 200:
-            raise HTTPError("Network Error")
-        plugins = res.json()["plugins"]
-        tasks = [get_plugin_code(plugin["id"]) for plugin in plugins if plugin["pricingModel"] != "FREE"]
-        get_plugin_codes = await asyncio.gather(*tasks)
-        get_plugin_codes = [code for code in get_plugin_codes if code is not None]
+    response = await send_request(f"https://plugins.jetbrains.com/api/searchPlugins?max=10000&offset=0")
+    plugins = response["plugins"]
+    tasks = [get_plugin_code(plugin["id"]) for plugin in plugins if plugin["pricingModel"] != "FREE"]
+    get_plugin_codes = await asyncio.gather(*tasks)
+    get_plugin_codes = [code for code in get_plugin_codes if code is not None]
 
     async with aiofiles.open("../plugins_bak.json", "w") as f:
         await f.write(json.dumps(get_plugin_codes))
@@ -59,11 +59,8 @@ async def plugins_code_list(update: bool = False):
 
 
 async def get_software():
-    async with httpx.AsyncClient() as client:
-        res = await client.get("https://data.services.jetbrains.com/products?fields=code,name,description")
-        if res.status_code != 200:
-            raise HTTPError("Network Error")
-        return res.json()
+    response = await send_request(f"https://data.services.jetbrains.com/products?fields=code,name,description")
+    return response
 
 
 async def software_code_list(update: bool = False):
