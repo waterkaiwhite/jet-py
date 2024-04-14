@@ -3,7 +3,7 @@
 # @Time    : 2024/4/13  下午9:52
 # @Author  : wzZ
 # @File    : main.py
-# @Software: PyCharm
+# @Software: IntelliJ IDEA
 import asyncio
 
 from power import get_key_and_pem, get_equal
